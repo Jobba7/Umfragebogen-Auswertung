@@ -1,5 +1,6 @@
 from openpyxl import Workbook
 from openpyxl.styles import Font
+from openpyxl.utils import get_column_letter
 
 grid = [
     # 1. Seite
@@ -46,6 +47,21 @@ facetten = [
     "Überprüfung und Feststellung des Lernergebnisses",
 ]
 
+ordered_types = [
+    "Selbstreguliert",
+    "Überwiegend selbstreguliert",
+    "Ansatzweise selbstreguliert",
+    "Mischtyp selbstreguliert / external reguliert",
+    "Mischtyp selbstreguliert / unreflektiert-impulsiv",
+    "Überwiegend external reguliert",
+    "Überwiegend unreflektiert-impulsiv",
+    "Ansatzweise external reguliert",
+    "Ansatzweise unreflektiert-impulsiv",
+    "External reguliert",
+    "Unreflektiert-impulsiv",
+    "Mischtyp external reguliert / unreflektiert-impulsiv",
+    "Keine Zuordnung für diesen Fall (...)"
+]
 
 def get_facette(facette, row):
     result = {"s": 0, "ui": 0, "e": 0}
@@ -54,12 +70,10 @@ def get_facette(facette, row):
         antwortABC = row[i].value
         if antwortABC:
             antwortNumber = ord(antwortABC) - ord("A")
-            # Antwort basierend auf dem Grid auswerten
             antwort = grid[i - 1][antwortNumber]
             result[antwort] += 1
 
     return result
-
 
 def get_final_result(facette):
     if facette["s"] == 4:
@@ -99,42 +113,69 @@ def get_final_result(facette):
 
     return f"Keine Zuordnung für diesen Fall ({facette})"
 
-
 def evaluate_results(workbook):
     sheet = workbook.active
-
-    # Neue Excel-Datei erstellen
     result_workbook = Workbook()
 
-    # Iteriere über jede Zeile (ab der zweiten Zeile für die Teilnehmer)
+    # Klassenübersicht vorbereiten
+    class_summary = {i: {t: 0 for t in ordered_types} for i in range(7)}
+
+    # Teilnehmer verarbeiten
     for row_index, row in enumerate(sheet.iter_rows(min_row=2), start=2):
-        teilnehmer_name = row[0].value  # Name des Teilnehmers aus Spalte A
+        teilnehmer_name = row[0].value
         if not teilnehmer_name:
             continue
 
-        # Neues Sheet für den Teilnehmer erstellen
-        result_sheet = result_workbook.create_sheet(title=teilnehmer_name[:30])  # max. 31 Zeichen für Sheet-Namen
+        # Teilnehmer-Sheet erstellen
+        result_sheet = result_workbook.create_sheet(title=teilnehmer_name[:30])
 
-        # Überschriften einfügen und formatieren
+        # Überschriften
         result_sheet.append(["Facette", "Details", "Bewertung"])
-        # Überschriftenzeile fett machen
-        for cell in result_sheet[1]:  # Zeile 1 ist die erste Zeile (1-basiert)
+        for cell in result_sheet[1]:
             cell.font = Font(bold=True)
 
-        # Ergebnisse für jede Facette berechnen
+        # Facetten-Ergebnisse sammeln und Klassenübersicht aktualisieren
         for facette_index in range(7):
             facette_result = get_facette(facette_index + 1, row)
             final_result = get_final_result(facette_result)
 
-            # Ergebnisse in das Teilnehmer-Sheet schreiben
+            # Für Klassenübersicht zählen
+            if final_result in class_summary[facette_index]:
+                class_summary[facette_index][final_result] += 1
+            else:
+                class_summary[facette_index]["Keine Zuordnung für diesen Fall (...)"] += 1
+
+            # Teilnehmer-Sheet schreiben
             result_sheet.append([facetten[facette_index], str(facette_result), final_result])
 
-        # Spaltenbreiten anpassen für bessere Lesbarkeit
-        result_sheet.column_dimensions['A'].width = 50  # Facetten-Spalte
-        result_sheet.column_dimensions['B'].width = 20  # Ergebnisse-Spalte
-        result_sheet.column_dimensions['C'].width = 50  # Bewertungsspalte
+        # Spaltenbreiten anpassen
+        result_sheet.column_dimensions['A'].width = 50
+        result_sheet.column_dimensions['B'].width = 20
+        result_sheet.column_dimensions['C'].width = 50
 
-    # Standardsheet entfernen
+    # Klassenübersicht erstellen
+    class_sheet = result_workbook.create_sheet(title="Klassenübersicht", index=0)
+    headers = ["Facette"] + ordered_types
+    class_sheet.append(headers)
+
+    # Überschriften formatieren
+    for cell in class_sheet[1]:
+        cell.font = Font(bold=True)
+
+    # Daten einfügen
+    for facette_index in range(7):
+        row_data = [facetten[facette_index]]
+        for t in ordered_types:
+            row_data.append(class_summary[facette_index][t])
+        class_sheet.append(row_data)
+
+    # Spaltenbreiten anpassen
+    class_sheet.column_dimensions['A'].width = 50
+    for col_idx in range(2, len(ordered_types) + 2):
+        col_letter = get_column_letter(col_idx)
+        class_sheet.column_dimensions[col_letter].width = 30
+
+    # Leeres Standard-Sheet entfernen
     if "Sheet" in result_workbook.sheetnames:
         del result_workbook["Sheet"]
 
