@@ -1,4 +1,5 @@
-from openpyxl import load_workbook, Workbook
+from openpyxl import Workbook
+from openpyxl.styles import Font
 
 grid = [
     # 1. Seite
@@ -114,8 +115,11 @@ def evaluate_results(workbook):
         # Neues Sheet für den Teilnehmer erstellen
         result_sheet = result_workbook.create_sheet(title=teilnehmer_name[:30])  # max. 31 Zeichen für Sheet-Namen
 
-        # Überschriften einfügen
-        result_sheet.append(["Facette", "Ergebnisse (s, ui, e)", "Bewertung"])
+        # Überschriften einfügen und formatieren
+        result_sheet.append(["Facette", "Details", "Bewertung"])
+        # Überschriftenzeile fett machen
+        for cell in result_sheet[1]:  # Zeile 1 ist die erste Zeile (1-basiert)
+            cell.font = Font(bold=True)
 
         # Ergebnisse für jede Facette berechnen
         for facette_index in range(7):
@@ -125,10 +129,13 @@ def evaluate_results(workbook):
             # Ergebnisse in das Teilnehmer-Sheet schreiben
             result_sheet.append([facetten[facette_index], str(facette_result), final_result])
 
+        # Spaltenbreiten anpassen für bessere Lesbarkeit
+        result_sheet.column_dimensions['A'].width = 50  # Facetten-Spalte
+        result_sheet.column_dimensions['B'].width = 20  # Ergebnisse-Spalte
+        result_sheet.column_dimensions['C'].width = 50  # Bewertungsspalte
+
     # Standardsheet entfernen
     if "Sheet" in result_workbook.sheetnames:
         del result_workbook["Sheet"]
 
-    # Ergebnisse speichern
-    # result_workbook.save(output_file)
     return result_workbook
