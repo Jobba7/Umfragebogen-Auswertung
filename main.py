@@ -1,6 +1,7 @@
+import os
+import sys
 import tkinter as tk
 from tkinter import filedialog, messagebox
-import openpyxl  # Stelle sicher, dass openpyxl installiert ist: `pip install openpyxl`
 from analysis import evaluate_results
 from preprocessing import start_preprocessing
 
@@ -12,7 +13,6 @@ def select_excel_file():
     )
     if file_path:
         input_file_path.set(file_path)
-        #messagebox.showinfo("Erfolg", "Excel-Datei erfolgreich ausgewählt.")
 
 
 def process_and_save_excel():
@@ -32,14 +32,19 @@ def process_and_save_excel():
         return
 
     try:
-        # Hier kannst du deinen Verarbeitungs-Code einfügen:
         # Verarbeitung
         workbook = start_preprocessing(input_path)
         result = evaluate_results(workbook)
 
         # Verarbeitete Datei speichern
         result.save(output_path)
-        messagebox.showinfo("Erfolg", f"Datei erfolgreich gespeichert: {output_path}")
+
+        # Datei mit dem Standard-Programm öffnen
+        os.startfile(output_path)
+
+        # Programm beenden
+        sys.exit()
+
     except Exception as e:
         messagebox.showerror("Fehler", f"Ein Fehler ist aufgetreten:\n{e}")
 
