@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import openpyxl  # Stelle sicher, dass openpyxl installiert ist: `pip install openpyxl`
+from analysis import evaluate_results
 from preprocessing import start_preprocessing
 
 
@@ -21,8 +22,6 @@ def process_and_save_excel():
         messagebox.showerror("Fehler", "Keine Eingabedatei ausgewählt.")
         return
 
-    # Verarbeitung
-
     # Dialog, um Speicherort auszuwählen
     output_path = filedialog.asksaveasfilename(
         title="Speichere die neue Excel-Datei",
@@ -34,14 +33,12 @@ def process_and_save_excel():
 
     try:
         # Hier kannst du deinen Verarbeitungs-Code einfügen:
-        workbook = openpyxl.load_workbook(input_path)
-        sheet = workbook.active
-
-        # Beispiel: Daten aus der ersten Zelle ändern
-        sheet["A1"] = "Verarbeitet"
+        # Verarbeitung
+        workbook = start_preprocessing(input_path)
+        result = evaluate_results(workbook)
 
         # Verarbeitete Datei speichern
-        workbook.save(output_path)
+        result.save(output_path)
         messagebox.showinfo("Erfolg", f"Datei erfolgreich gespeichert: {output_path}")
     except Exception as e:
         messagebox.showerror("Fehler", f"Ein Fehler ist aufgetreten:\n{e}")

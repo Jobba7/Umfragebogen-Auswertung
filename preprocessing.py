@@ -43,9 +43,9 @@ def extract_participant_responses(sheet, row_number):
     return participant_name, answers
 
 
-def start_preprocessing():
+def start_preprocessing(input_file):
     # Start der Verarbeitung
-    input_file = "data.xlsx"
+    #input_file = "data.xlsx"
     output_file = "results.xlsx"
 
     # Excel-Datei mit den Daten laden
