@@ -44,10 +44,6 @@ def extract_participant_responses(sheet, row_number):
 
 
 def start_preprocessing(input_file):
-    # Start der Verarbeitung
-    #input_file = "data.xlsx"
-    output_file = "results.xlsx"
-
     # Excel-Datei mit den Daten laden
     workbook = load_workbook(input_file)
     sheet = workbook.active
@@ -80,8 +76,5 @@ def start_preprocessing(input_file):
         # Zur nächsten Zeile wechseln
         current_row += 1
 
-    # Ergebnisse speichern
     workbook.close()
-    output_workbook.save(output_file)
-    print(f"Ergebnisse wurden in '{output_file}' gespeichert.")
     return output_workbook

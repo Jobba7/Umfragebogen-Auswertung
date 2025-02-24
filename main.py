@@ -12,7 +12,7 @@ def select_excel_file():
     )
     if file_path:
         input_file_path.set(file_path)
-        messagebox.showinfo("Erfolg", "Excel-Datei erfolgreich ausgewählt.")
+        #messagebox.showinfo("Erfolg", "Excel-Datei erfolgreich ausgewählt.")
 
 
 def process_and_save_excel():
