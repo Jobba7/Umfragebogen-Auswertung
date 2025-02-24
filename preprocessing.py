@@ -1,7 +1,7 @@
 from openpyxl import load_workbook, Workbook
 
 
-def evaluate_answers(sheet, row_number):
+def extract_participant_responses(sheet, row_number):
     # Teilnehmername aus Spalte H
     participant_name = sheet[f"H{row_number}"].value
 
@@ -39,48 +39,49 @@ def evaluate_answers(sheet, row_number):
         else:
             answers.append(None)  # Für den Fall, dass keine gültige Antwort vorliegt
 
-    workbook.close()
-
     # Rückgabe des Teilnehmernamens und der Antworten
     return participant_name, answers
 
 
-# Start der Verarbeitung
-input_file = "data.xlsx"
-output_file = "results.xlsx"
+def start_preprocessing():
+    # Start der Verarbeitung
+    input_file = "data.xlsx"
+    output_file = "results.xlsx"
 
-# Excel-Datei mit den Daten laden
-workbook = load_workbook(input_file)
-sheet = workbook.active
+    # Excel-Datei mit den Daten laden
+    workbook = load_workbook(input_file)
+    sheet = workbook.active
 
-# Neue Excel-Datei erstellen
-output_workbook = Workbook()
-output_sheet = output_workbook.active
-output_sheet.title = "Results"
+    # Neue Excel-Datei erstellen
+    output_workbook = Workbook()
+    output_sheet = output_workbook.active
+    output_sheet.title = "Results"
 
-# Header hinzufügen
-output_sheet.append(["Teilnehmer", *[f"Frage {i+1}" for i in range(28)]])
+    # Header hinzufügen
+    output_sheet.append(["Teilnehmer", *[f"Frage {i+1}" for i in range(28)]])
 
-# Verarbeitung aller Teilnehmer
-start_row = 3
-current_row = start_row
-while True:
-    # Teilnehmername aus der aktuellen Zeile
-    participant_name = sheet[f"H{current_row}"].value
+    # Verarbeitung aller Teilnehmer
+    start_row = 3
+    current_row = start_row
+    while True:
+        # Teilnehmername aus der aktuellen Zeile
+        participant_name = sheet[f"H{current_row}"].value
 
-    # Stop, wenn eine leere Zeile erreicht wird
-    if not participant_name:
-        break
+        # Stop, wenn eine leere Zeile erreicht wird
+        if not participant_name:
+            break
 
-    # Antworten auswerten
-    _, answers = evaluate_answers(sheet, current_row)
+        # Antworten auswerten
+        _, answers = extract_participant_responses(sheet, current_row)
+
+        # Ergebnisse speichern
+        output_sheet.append([participant_name, *answers])
+
+        # Zur nächsten Zeile wechseln
+        current_row += 1
 
     # Ergebnisse speichern
-    output_sheet.append([participant_name, *answers])
-
-    # Zur nächsten Zeile wechseln
-    current_row += 1
-
-# Ergebnisse speichern
-output_workbook.save(output_file)
-print(f"Ergebnisse wurden in '{output_file}' gespeichert.")
+    workbook.close()
+    output_workbook.save(output_file)
+    print(f"Ergebnisse wurden in '{output_file}' gespeichert.")
+    return output_workbook

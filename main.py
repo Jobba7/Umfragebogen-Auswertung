@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import openpyxl  # Stelle sicher, dass openpyxl installiert ist: `pip install openpyxl`
+from preprocessing import start_preprocessing
 
 
 def select_excel_file():
@@ -19,6 +20,8 @@ def process_and_save_excel():
     if not input_path:
         messagebox.showerror("Fehler", "Keine Eingabedatei ausgewählt.")
         return
+
+    # Verarbeitung
 
     # Dialog, um Speicherort auszuwählen
     output_path = filedialog.asksaveasfilename(

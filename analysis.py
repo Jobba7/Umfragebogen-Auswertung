@@ -99,9 +99,7 @@ def get_final_result(facette):
     return f"Keine Zuordnung für diesen Fall ({facette})"
 
 
-def evaluate_results(input_file, output_file):
-    # Originale Excel-Datei laden
-    workbook = load_workbook(input_file)
+def evaluate_results(workbook):
     sheet = workbook.active
 
     # Neue Excel-Datei erstellen
@@ -132,8 +130,5 @@ def evaluate_results(input_file, output_file):
         del result_workbook["Sheet"]
 
     # Ergebnisse speichern
-    result_workbook.save(output_file)
-
-
-# Beispielausführung
-evaluate_results("results.xlsx", "evaluated_results.xlsx")
+    # result_workbook.save(output_file)
+    return result_workbook
