@@ -34,6 +34,14 @@ Aktualisiere die `requirements.txt` mit:
 pip freeze > requirements.txt
 ```
 
+## Programm starten
+
+Starte das Programm mit:
+
+```bash
+python main.py
+```
+
 ## Code in eine .exe umwandeln
 
 ### 1. PyInstaller installieren
