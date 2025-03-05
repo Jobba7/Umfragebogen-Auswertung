@@ -65,6 +65,9 @@ def export_processed_excel():
 main_window = tk.Tk()
 main_window.title("Excel-Dateiverarbeitung")
 
+# Maximierung deaktivieren
+main_window.resizable(False, False)
+
 # Variable zum Speichern des Dateipfads
 excel_input_path = tk.StringVar()
 
