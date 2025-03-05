@@ -2,7 +2,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 
-grid = [
+evaluation_matrix = [
     # 1. Seite
     ["s", "ui", "e"],
     ["e", "s", "ui"],
@@ -60,18 +60,22 @@ ordered_types = [
     "External reguliert",
     "Unreflektiert-impulsiv",
     "Mischtyp external reguliert / unreflektiert-impulsiv",
-    "Keine Zuordnung für diesen Fall (...)",
+    "Keine Zuordnung",
 ]
 
 
 def get_facette(facette, row):
+    """
+    Berechnet die Facetten-Ergebnisse für eine gegebene Facette.
+    """
+
     result = {"s": 0, "ui": 0, "e": 0}
 
     for i in range(facette, len(row), 7):
         antwortABC = row[i].value
         if antwortABC:
             antwortNumber = ord(antwortABC) - ord("A")
-            antwort = grid[i - 1][antwortNumber]
+            antwort = evaluation_matrix[i - 1][antwortNumber]
             result[antwort] += 1
 
     return result
@@ -116,7 +120,11 @@ def get_final_result(facette):
     return f"Keine Zuordnung für diesen Fall ({facette})"
 
 
-def evaluate_results(workbook):
+def generate_evaluation_report(workbook):
+    """
+    Erstellt einen Bericht über die Auswertung der Excel-Daten.
+    """
+
     sheet = workbook.active
     result_workbook = Workbook()
 
@@ -126,20 +134,21 @@ def evaluate_results(workbook):
     # Teilnehmer verarbeiten
     students = []
     for row_index, row in enumerate(sheet.iter_rows(min_row=2), start=2):
-        teilnehmer_name = row[0].value
-        if teilnehmer_name:
-            students.append((teilnehmer_name, row))
+        student_name = row[0].value
+        if student_name:
+            students.append((student_name, row))
 
-    # Sort students alphabetically by name
+    # Teilnehmer nach Namen sortieren
     students.sort(key=lambda x: x[0])
 
-    # Create sheets for each student
-    for teilnehmer_name, row in students:
+    # Ergebnisse für jeden Teilnehmer sammeln
+    for student_name, row in students:
         # Teilnehmer-Sheet erstellen
-        result_sheet = result_workbook.create_sheet(title=teilnehmer_name[:30])
+        result_sheet = result_workbook.create_sheet(title=student_name[:30])
 
         # Überschriften
         result_sheet.append(["Facette", "Details", "Bewertung"])
+        # Überschriften hervorheben
         for cell in result_sheet[1]:
             cell.font = Font(bold=True)
 
@@ -152,7 +161,7 @@ def evaluate_results(workbook):
             if final_result in class_summary[facette_index]:
                 class_summary[facette_index][final_result] += 1
             else:
-                class_summary[facette_index]["Keine Zuordnung für diesen Fall (...)"] += 1
+                class_summary[facette_index]["Keine Zuordnung"] += 1
 
             # Teilnehmer-Sheet schreiben
             result_sheet.append([facetten[facette_index], str(facette_result), final_result])
@@ -167,7 +176,7 @@ def evaluate_results(workbook):
     headers = ["Facette"] + ordered_types
     class_sheet.append(headers)
 
-    # Überschriften formatieren
+    # Überschriften hervorheben
     for cell in class_sheet[1]:
         cell.font = Font(bold=True)
 

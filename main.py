@@ -2,7 +2,7 @@ import os
 import sys
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from analysis import evaluate_results
+from analysis import generate_evaluation_report
 from preprocessing import process_excel_data
 
 
@@ -44,7 +44,7 @@ def export_processed_excel():
     try:
         # Excel-Datei verarbeiten
         excel_document = process_excel_data(input_path)
-        result = evaluate_results(excel_document)
+        result = generate_evaluation_report(excel_document)
 
         # Verarbeitete Datei speichern
         result.save(output_path)
