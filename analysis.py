@@ -60,8 +60,9 @@ ordered_types = [
     "External reguliert",
     "Unreflektiert-impulsiv",
     "Mischtyp external reguliert / unreflektiert-impulsiv",
-    "Keine Zuordnung für diesen Fall (...)"
+    "Keine Zuordnung für diesen Fall (...)",
 ]
+
 
 def get_facette(facette, row):
     result = {"s": 0, "ui": 0, "e": 0}
@@ -74,6 +75,7 @@ def get_facette(facette, row):
             result[antwort] += 1
 
     return result
+
 
 def get_final_result(facette):
     if facette["s"] == 4:
@@ -113,6 +115,7 @@ def get_final_result(facette):
 
     return f"Keine Zuordnung für diesen Fall ({facette})"
 
+
 def evaluate_results(workbook):
     sheet = workbook.active
     result_workbook = Workbook()
@@ -149,9 +152,9 @@ def evaluate_results(workbook):
             result_sheet.append([facetten[facette_index], str(facette_result), final_result])
 
         # Spaltenbreiten anpassen
-        result_sheet.column_dimensions['A'].width = 50
-        result_sheet.column_dimensions['B'].width = 20
-        result_sheet.column_dimensions['C'].width = 50
+        result_sheet.column_dimensions["A"].width = 50
+        result_sheet.column_dimensions["B"].width = 20
+        result_sheet.column_dimensions["C"].width = 50
 
     # Klassenübersicht erstellen
     class_sheet = result_workbook.create_sheet(title="Klassenübersicht", index=0)
@@ -169,8 +172,16 @@ def evaluate_results(workbook):
             row_data.append(class_summary[facette_index][t])
         class_sheet.append(row_data)
 
+    # Summenzeile hinzufügen
+    sum_row = ["Summe"]
+    for col_idx in range(2, len(ordered_types) + 2):
+        col_letter = get_column_letter(col_idx)
+        sum_formula = f"=SUM({col_letter}2:{col_letter}{class_sheet.max_row})"
+        sum_row.append(sum_formula)
+    class_sheet.append(sum_row)
+
     # Spaltenbreiten anpassen
-    class_sheet.column_dimensions['A'].width = 50
+    class_sheet.column_dimensions["A"].width = 50
     for col_idx in range(2, len(ordered_types) + 2):
         col_letter = get_column_letter(col_idx)
         class_sheet.column_dimensions[col_letter].width = 30
