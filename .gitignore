@@ -5,6 +5,6 @@ __pycache__
 
 *.xlsx
 
-main.spec
+*.spec
 dist/
 build/
