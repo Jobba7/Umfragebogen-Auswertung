@@ -124,11 +124,17 @@ def evaluate_results(workbook):
     class_summary = {i: {t: 0 for t in ordered_types} for i in range(7)}
 
     # Teilnehmer verarbeiten
+    students = []
     for row_index, row in enumerate(sheet.iter_rows(min_row=2), start=2):
         teilnehmer_name = row[0].value
-        if not teilnehmer_name:
-            continue
+        if teilnehmer_name:
+            students.append((teilnehmer_name, row))
 
+    # Sort students alphabetically by name
+    students.sort(key=lambda x: x[0])
+
+    # Create sheets for each student
+    for teilnehmer_name, row in students:
         # Teilnehmer-Sheet erstellen
         result_sheet = result_workbook.create_sheet(title=teilnehmer_name[:30])
 
