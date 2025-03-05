@@ -43,7 +43,7 @@ def extract_participant_responses(sheet, row_number):
     return participant_name, answers
 
 
-def start_preprocessing(input_file):
+def process_excel_data(input_file):
     # Excel-Datei mit den Daten laden
     workbook = load_workbook(input_file)
     sheet = workbook.active

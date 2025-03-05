@@ -3,75 +3,90 @@ import sys
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from analysis import evaluate_results
-from preprocessing import start_preprocessing
+from preprocessing import process_excel_data
 
 
-def select_excel_file():
+def open_excel_file_dialog():
     """Lässt den Nutzer eine Excel-Datei auswählen."""
-    file_path = filedialog.askopenfilename(
+
+    # Dialog zum Auswählen einer Datei öffnen
+    chosen_file_path = filedialog.askopenfilename(
         title="Wähle eine Excel-Datei", filetypes=[("Excel-Dateien", "*.xlsx"), ("Alle Dateien", "*.*")]
     )
-    if file_path:
-        input_file_path.set(file_path)
+
+    # Wenn eine Datei ausgewählt wurde, wird der Dateipfad gespeichert
+    if chosen_file_path:
+        excel_input_path.set(chosen_file_path)
 
 
-def process_and_save_excel():
+def export_processed_excel():
     """Verarbeitet die ausgewählte Excel-Datei und speichert das Ergebnis."""
-    input_path = input_file_path.get()
+
+    # Dateipfad auslesen
+    input_path = excel_input_path.get()
+
+    # Wenn keine Datei ausgewählt wurde, wird eine Fehlermeldung angezeigt
     if not input_path:
         messagebox.showerror("Fehler", "Keine Eingabedatei ausgewählt.")
         return
 
-    # Dialog, um Speicherort auszuwählen
+    # Dialog zum Speichern der Datei öffnen
     output_path = filedialog.asksaveasfilename(
         title="Speichere die neue Excel-Datei",
         defaultextension=".xlsx",
         filetypes=[("Excel-Dateien", "*.xlsx"), ("Alle Dateien", "*.*")],
     )
+
+    # Wenn kein Speicherort ausgewählt wurde, wird die Verarbeitung abgebrochen
     if not output_path:
         return
 
     try:
-        # Verarbeitung
-        workbook = start_preprocessing(input_path)
-        result = evaluate_results(workbook)
+        # Excel-Datei verarbeiten
+        excel_document = process_excel_data(input_path)
+        result = evaluate_results(excel_document)
 
         # Verarbeitete Datei speichern
         result.save(output_path)
 
-        # Datei mit dem Standard-Programm öffnen
+        # Datei nach dem Speichern direkt öffnen
         os.startfile(output_path)
 
         # Programm beenden
         sys.exit()
 
+    # Falls ein Fehler auftritt, wird eine Fehlermeldung angezeigt
     except Exception as e:
         messagebox.showerror("Fehler", f"Ein Fehler ist aufgetreten:\n{e}")
 
 
+# Beginn des Programms
 # Hauptfenster erstellen
-root = tk.Tk()
-root.title("Excel-Dateiverarbeitung")
+main_window = tk.Tk()
+main_window.title("Excel-Dateiverarbeitung")
 
 # Variable zum Speichern des Dateipfads
-input_file_path = tk.StringVar()
+excel_input_path = tk.StringVar()
 
-# UI-Komponenten
-frame = tk.Frame(root, padx=10, pady=10)
+# Fenster konfigurieren
+frame = tk.Frame(main_window, padx=10, pady=10)
 frame.pack(fill=tk.BOTH, expand=True)
 
-btn_select_file = tk.Button(frame, text="Excel-Datei auswählen", command=select_excel_file)
-btn_select_file.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+# Button zum Auswählen der Datei
+select_file_button = tk.Button(frame, text="Excel-Datei auswählen", command=open_excel_file_dialog)
+select_file_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-entry_file_path = tk.Entry(frame, textvariable=input_file_path, state="readonly", width=50)
-entry_file_path.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+# Anzeige des ausgewählten Dateipfads
+selected_file_path_entry = tk.Entry(frame, textvariable=excel_input_path, state="readonly", width=50)
+selected_file_path_entry.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
-btn_process_save = tk.Button(frame, text="Verarbeiten und Speichern", command=process_and_save_excel)
-btn_process_save.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+# Button zum Verarbeiten und Speichern der Datei
+export_results_button = tk.Button(frame, text="Verarbeiten und Speichern", command=export_processed_excel)
+export_results_button.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
-# Grid-Anpassungen für Fenster-Resizing
+# Spaltenverhalten konfigurieren
 frame.columnconfigure(0, weight=1)
 frame.columnconfigure(1, weight=3)
 
-# Hauptloop starten
-root.mainloop()
+# Programm starten
+main_window.mainloop()
