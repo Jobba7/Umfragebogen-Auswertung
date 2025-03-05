@@ -2,48 +2,69 @@ from openpyxl import load_workbook, Workbook
 
 
 def extract_participant_responses(sheet, row_number):
+    """
+    Extrahiert die Antworten eines Teilnehmers aus der Excel-Tabelle.
+    """
+
     # Teilnehmername aus Spalte H
     participant_name = sheet[f"H{row_number}"].value
 
     # Startspalte für die Antworten (Frage 2 beginnt bei Spalte T)
-    start_column = ord("T")  # Spalte T als Basis
+    start_column = ord("T")
+    # Anzahl der Fragen
     total_questions = 28
-    answer_offset = 7  # Abstand der Fragen
-    number_of_answer_options = 3  # Anzahl der Antwortmöglichkeiten (A, B, C)
+    # Abstand der Fragen
+    answer_offset = 7
+    # Anzahl der Antwortmöglichkeiten (A, B, C)
+    number_of_answer_options = 3
 
-    answers = []  # Hier speichern wir die Antworten ('A', 'B' oder 'C')
+    # Hier werden die Antworten des Teilnehmers gespeichert
+    answers = []
 
-    # Schleife über alle Fragen
+    # Gehe durch alle 28 Fragen
     for question in range(1, total_questions + 1):
-        # Spalten der Antwortmöglichkeiten (A, B, C)
+        # Berechne alle Spalten für die Antwortmöglichkeiten
+        # Liste für die Antwortspalten
         answer_columns = []
+        # Schleife über die Anzahl der Antwortmöglichkeiten (A, B, C)
         for i in range(number_of_answer_options):
+            # Berechne den Index der Antwortspalte
             answer_column_index = start_column + (question - 1) * answer_offset + i
+            # Berechne den ersten Buchstaben der Spalte
             first_letter = chr(ord("A") + (answer_column_index - ord("A")) // 26 - 1)
+            # Berechne den zweiten Buchstaben der Spalte
             second_letter = chr(ord("A") + (answer_column_index - ord("A")) % 26)
+            # Wenn der erste Buchstabe kleiner als "A" ist
             if first_letter < "A":
+                # Füge nur den zweiten Buchstaben zur Liste hinzu
                 answer_columns.append(second_letter)
             else:
+                # Füge beide Buchstaben zur Liste hinzu
                 answer_columns.append(first_letter + second_letter)
 
-        # Werte der Zellen abrufen
-        values = [sheet[f"{col}{row_number}"].value for col in answer_columns]
+        # Lese die Werte der Antwortspalten aus
+        answer_selections = [sheet[f"{answer_column}{row_number}"].value for answer_column in answer_columns]
 
         # Prüfen, welche Antwort gewählt wurde (1 steht für die Auswahl)
-        if values[0] == 1:
+        if answer_selections[0] == 1:
             answers.append("A")
-        elif values[1] == 1:
+        elif answer_selections[1] == 1:
             answers.append("B")
-        elif values[2] == 1:
+        elif answer_selections[2] == 1:
             answers.append("C")
         else:
-            answers.append(None)  # Für den Fall, dass keine gültige Antwort vorliegt
+            # Für den Fall, dass keine gültige Antwort vorliegt
+            answers.append(None)
 
     # Rückgabe des Teilnehmernamens und der Antworten
     return participant_name, answers
 
 
 def process_excel_data(input_file):
+    """
+    Extrahiert die Antworten der Schüler aus der Excel-Datei für die weitere Verarbeitung.
+    """
+
     # Excel-Datei mit den Daten laden
     workbook = load_workbook(input_file)
     sheet = workbook.active
@@ -53,17 +74,19 @@ def process_excel_data(input_file):
     output_sheet = output_workbook.active
     output_sheet.title = "Results"
 
-    # Header hinzufügen
+    # Kopfzeile für die Ergebnisse
     output_sheet.append(["Teilnehmer", *[f"Frage {i+1}" for i in range(28)]])
 
     # Verarbeitung aller Teilnehmer
+    # Startzeile für die Teilnehmerdaten
     start_row = 3
     current_row = start_row
+    # Schleife über alle Teilnehmerdaten
     while True:
         # Teilnehmername aus der aktuellen Zeile
         participant_name = sheet[f"H{current_row}"].value
 
-        # Stop, wenn eine leere Zeile erreicht wird
+        # Schleife nach letztem Teilnehmer beenden
         if not participant_name:
             break
 
@@ -76,5 +99,7 @@ def process_excel_data(input_file):
         # Zur nächsten Zeile wechseln
         current_row += 1
 
+    # Excel-Datei schließen
     workbook.close()
+    # Rückgabe der verarbeiteten Daten
     return output_workbook
