@@ -1,13 +1,14 @@
 from openpyxl import load_workbook, Workbook
 
+participant_name_column = "H"
+
 
 def extract_participant_responses(sheet, row_number):
     """
     Extrahiert die Antworten eines Teilnehmers aus der Excel-Tabelle.
     """
 
-    # Teilnehmername aus Spalte H
-    participant_name = sheet[f"H{row_number}"].value
+    participant_name = sheet[f"{participant_name_column}{row_number}"].value
 
     # Startspalte für die Antworten (Frage 2 beginnt bei Spalte T)
     start_column = ord("T")
@@ -84,7 +85,7 @@ def process_excel_data(input_file):
     # Schleife über alle Teilnehmerdaten
     while True:
         # Teilnehmername aus der aktuellen Zeile
-        participant_name = sheet[f"H{current_row}"].value
+        participant_name = sheet[f"{participant_name_column}{current_row}"].value
 
         # Schleife nach letztem Teilnehmer beenden
         if not participant_name:
