@@ -1,6 +1,6 @@
 from openpyxl import load_workbook, Workbook
 
-participant_name_column = "H"
+participant_name_column = "G"
 
 
 def extract_participant_responses(sheet, row_number):
@@ -11,11 +11,11 @@ def extract_participant_responses(sheet, row_number):
     participant_name = sheet[f"{participant_name_column}{row_number}"].value
 
     # Startspalte für die Antworten (Frage 2 beginnt bei Spalte T)
-    start_column = ord("T")
+    start_column = ord("Q")
     # Anzahl der Fragen
     total_questions = 28
     # Abstand der Fragen
-    answer_offset = 7
+    answer_offset = 6
     # Anzahl der Antwortmöglichkeiten (A, B, C)
     number_of_answer_options = 3
 
