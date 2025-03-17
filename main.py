@@ -64,7 +64,7 @@ def export_processed_excel():
 # Beginn des Programms
 # Hauptfenster erstellen
 main_window = tk.Tk()
-main_window.title("FSL-7 Auswertung")
+main_window.title("Auswertung FSL-7")
 
 # Maximierung deaktivieren
 main_window.resizable(False, False)

@@ -57,7 +57,7 @@ pip install pyinstaller
 Erstelle die .exe-Datei mit:
 
 ```bash
-pyinstaller --onefile --windowed --name "Fragebogen auswerten" main.py
+pyinstaller --onefile --windowed --name "Auswertung FSL-7" main.py
 ```
 
 Die .exe findest du im `dist`-Ordner.
